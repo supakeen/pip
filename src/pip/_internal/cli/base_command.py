@@ -36,6 +36,7 @@ from pip._internal.utils.misc import get_prog, normalize_path
 from pip._internal.utils.temp_dir import TempDirectoryTypeRegistry as TempDirRegistry
 from pip._internal.utils.temp_dir import global_tempdir_manager, tempdir_registry
 from pip._internal.utils.virtualenv import running_under_virtualenv
+from pip._internal.self_venv_check import pip_self_venv_check
 
 __all__ = ["Command"]
 
@@ -87,6 +88,11 @@ class Command(CommandContextMixIn):
         # Make sure we do the pip version check if the index_group options
         # are present.
         assert not hasattr(options, "no_index")
+
+    def handle_pip_python_check(self, options: Values) -> None:
+        """
+        """
+        pip_self_venv_check()
 
     def run(self, options: Values, args: List[str]) -> int:
         raise NotImplementedError
@@ -220,4 +226,5 @@ class Command(CommandContextMixIn):
                 rich_traceback.install(show_locals=True)
             return run(options, args)
         finally:
+            self.handle_pip_python_check(options)
             self.handle_pip_version_check(options)
